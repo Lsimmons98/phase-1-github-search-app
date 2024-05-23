@@ -12,6 +12,7 @@ createP.addEventListener('click', () => {
   }
 })
 userSearchForm.appendChild(createP)
+const toggle = document.getElementsByClassName('search-toggle')[0]
 
 const retrieveUser = (user) => {
   fetch(`https://api.github.com/search/users?q=${user}`,{
@@ -55,7 +56,7 @@ const userReposToDom = (resp) => {
 
 const usersToDoM = (resp) => {
   userList.innerHTML = ''
-  debugger
+
   resp.items.forEach(user => {
 
   const userLink = document.createElement('a')
@@ -79,7 +80,39 @@ const usersToDoM = (resp) => {
 
 userSearchForm.addEventListener('submit', (event) => {
   event.preventDefault()
+  if(toggle.textContent === 'Currently Searching By Username. Click To Search By Repository'){
   const searchValue = document.getElementById('search').value
   retrieveUser(searchValue)
+  } else{
+    const searchValue = document.getElementById('search').value
+    retrieveRepoSearch(searchValue)
+  }
+  
 })
+
+const retrieveRepoSearch = (repo) => {
+  fetch(`https://api.github.com/search/repositories?q=${repo}`,{
+  headers:
+  {
+  "Content-Type": "application/json",
+  Accept: "application/vnd.github.v3+json"
+  },
+})
+  
+  .then(resp => resp.json())
+  .then(repoSearchToDom)
+}
+
+const repoSearchToDom = (repoArray) => {
+  reposList.innerHTML = ''
+  repoArray.items.forEach(repo => {
+    const repoLink = document.createElement('a')
+    repoLink.setAttribute('href', `${repo.html_url}`)
+    repoLink.textContent = repo.name
+    
+    const createLi = document.createElement('li')
+
+    reposList.appendChild(createLi).appendChild(repoLink)
+  });
+}
 
